@@ -3,14 +3,14 @@ const wPawn = {
     color: true,
     moved: false,
     char: "p",
-    value: 1
+    value: 100
 }
 const bPawn = {
     name: "pawn",
     color: false,
     moved: false,
     char: "o",
-    value: -1
+    value: -100
 }
 
 const wRook = {
@@ -18,14 +18,14 @@ const wRook = {
     color: true,
     moved: false,
     char: "r",
-    value: 5.63
+    value: 563
 }
 const bRook = {
     name: "rook",
     color: false,
     moved: false,
     char: "t",
-    value: -5.63
+    value: -563
 }
 
 const wKing = {
@@ -48,14 +48,14 @@ const wBishop = {
     color: true,
     moved: false,
     char: "b",
-    value: 3.33
+    value: 333
 }
 const bBishop = {
     name: "bishop",
     color: false,
     moved: false,
     char: "v",
-    value: -3.33
+    value: -333
 }
 
 const wKnight = {
@@ -63,14 +63,14 @@ const wKnight = {
     color: true,
     moved: false,
     char: "n",
-    value: 3.05
+    value: 305
 }
 const bKnight = {
     name: "knight",
     color: false,
     moved: false,
     char: "m",
-    value: -3.05
+    value: -305
 }
 
 const wQueen = {
@@ -78,14 +78,14 @@ const wQueen = {
     color: true,
     moved: false,
     char: "q",
-    value: 9.5
+    value: 950
 }
 const bQueen = {
     name: "queen",
     color: false,
     moved: false,
     char: "w",
-    value: -9.5
+    value: -950
 }
 
 export const defBoard = [

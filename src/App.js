@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import './App.css';
 import {defBoard, defDots} from './functions/Setup';
-import {moveMaster, isThreatened, allPossibleMoves, ComputerV1} from './functions/Move';
+import {isThreatened, allPossibleMoves, ComputerV2} from './functions/Move';
 
 import {Table, Button, Progress, Radio, Slider} from 'antd'
 
@@ -22,19 +22,44 @@ const App = () => {
 	const [check, setCheck] = useState(false);
 	const [selected, setSelected] = useState({row: null, col: null});
 	const [history, setHistory] = useState([]);
-	const [evaluation, setEvaluation] = useState(0);
+	const [evaluation, setEvaluation] = useState(50);
 	
 	const [player1, setPlayer1] = useState("person");
 	const [player2, setPlayer2] = useState("person");
-	const [compTimer, setCompTimer] = useState(250);
+	const [compTimer, setCompTimer] = useState(0);
 	const [firstMove, setFirstMove] = useState(true);
 	
-	const Mover = (moves) => {
-		var move = moves[Math.floor(Math.random()*moves.length)];
-		if (move) {
-			movePiece(move[0], move[1], move[2], move[3])
-		} else {
-			console.log("checkmate!")
+	const Mover = (player) => {
+		if (player !== "person") { 
+			if (player == "level 2") { 
+				var out = ComputerV2(turn, board.b, 2)
+				var moves = out?.move;
+				var val = out?.e/15+50;
+			} else if (player == "level 1") {
+				var out = ComputerV2(turn, board.b, 1);
+				var moves = out?.move;
+				var val = out?.e/15+50
+			} else if (player == "level 0") {
+				var out = allPossibleMoves(turn, board.b);
+				var moves = out?.movelist;
+				var val = out?.evaluation/15+50;
+			}
+
+			if (moves) {
+				var move = moves[Math.floor(Math.random()*moves.length)];
+				if (move) {
+					movePiece(move[0], move[1], move[2], move[3]);
+				} else {
+					console.log("checkmate!");
+				}
+			}
+			if (val > 100) {
+				setEvaluation(100);
+			} else if (val<0) {
+				setEvaluation(0);
+			} else {
+				setEvaluation(val);
+			}
 		}
 	}
 
@@ -42,20 +67,17 @@ const App = () => {
 	useEffect(() => {
 		setTimeout(() => {
 			if (firstMove) {
-				if (player1 == "level 1") {Mover(ComputerV1(turn, board.b).move)}
-				else if (player1 == "level 0") {Mover(allPossibleMoves(turn, board.b).movelist)}
-				setFirstMove(false)
+				Mover(player1);
+				setFirstMove(false);
 			} else {
 				if (turn==true) {
-					if (player1 == "level 1") {Mover(ComputerV1(turn, board.b).move)}
-					else if (player1 == "level 0") {Mover(allPossibleMoves(turn, board.b).movelist)}
+					Mover(player1);
 				}
 				if (turn==false) {
-					if (player2 == "level 1") {Mover(ComputerV1(turn, board.b).move)}
-					else if (player2 == "level 0") {Mover(allPossibleMoves(turn, board.b).movelist)}
+					Mover(player2);
 				}
 			}
-		}, compTimer)
+		}, compTimer);
 	}, [turn, player1, player2, firstMove])
 
 
@@ -75,6 +97,7 @@ const App = () => {
 	}
 
 	const movePiece = (r, c, toR, toC) => {
+		console.log(board.b[r][c])
 		var p = board.b[r][c];
 
 		if (p.name == "knight") {
@@ -116,8 +139,10 @@ const App = () => {
 		
 		var data = allPossibleMoves(!turn, board.b)
 		setDots({moves: data.movelist});
-		setEvaluation(data.evaluation)
-		setCheck(isThreatened("king", turn, board.b, false));
+		
+		
+
+		setCheck(isThreatened("king", !turn, board.b, false));
 		setSelected({row: null, col: null});
 		setTurn(!turn);
 	}
@@ -169,12 +194,12 @@ const App = () => {
 				</div>
 			
 				<div style={{width: "890px", display:"flex", justifyContent:"space-between"}}>
-					<div style={{width:"0px", display:"flex", alignItems:"center", marginRight:"15px"}}>
+					<div style={{width:"0px", display:"flex", alignItems:"center", marginRight:"10px"}}>
 						<Progress
 							type="line"
 							strokeWidth={30}
 							strokeLinecap="square"
-							percent={evaluation*100/15+50}
+							percent={evaluation}
 							trailColor="#202020"
 							strokeColor="#ffffff"
 							showInfo={false}
@@ -269,7 +294,7 @@ const App = () => {
 							setTurn(true);
 							setHistory([]);
 							setDots({moves: allPossibleMoves(true, defBoard).movelist});
-							setEvaluation(0)
+							setEvaluation(50);
 							
 						}}>
 							New Game
@@ -284,6 +309,7 @@ const App = () => {
 							<Radio.Button style={{width: "40%", textAlign:"center"}} value="person">Person</Radio.Button>
 							<Radio.Button style={{width: "30%", textAlign:"center"}} value="level 0">Lvl 0</Radio.Button>
 							<Radio.Button style={{width: "30%", textAlign:"center"}} value="level 1">Lvl 1</Radio.Button>
+							<Radio.Button style={{width: "30%", textAlign:"center"}} value="level 2">Lvl 2</Radio.Button>
 						</Radio.Group>
 						<Radio.Group
 							style={{ width: "100%"}}
@@ -294,6 +320,7 @@ const App = () => {
 							<Radio.Button style={{width: "40%", textAlign:"center"}} value="person">Person</Radio.Button>
 							<Radio.Button style={{width: "30%", textAlign:"center"}} value="level 0">Lvl 0</Radio.Button>
 							<Radio.Button style={{width: "30%", textAlign:"center"}} value="level 1">Lvl 1</Radio.Button>
+							<Radio.Button style={{width: "30%", textAlign:"center"}} value="level 2">Lvl 2</Radio.Button>
 						</Radio.Group>
 
 						<Slider 
@@ -312,7 +339,7 @@ const App = () => {
 							bordered={true}
 							size="small"
 							pagination={false}
-							scroll={{ y: 480 }}
+							scroll={{ y: 430 }}
 						/>
 						
 					</div>
